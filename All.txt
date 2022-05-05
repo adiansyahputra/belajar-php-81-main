@@ -1,0 +1,485 @@
+Enumerations
+Salah satu fitur yang di bahasa pemrograman lain sudah ada, namun akhirnya baru ada di PHP 8.1 adalah enum
+Enum adalah tipe data yang nilainya terbatas
+Sebelum ada enum, biasanya kita manual membuat constant di PHP
+Contoh, misal ketika kita akan membuat tipe data Gender, Level, dan sejenisnya
+Untuk membuat enum, kita bisa menggunakan kata kunci enum
+
+Kode : Enumerations
+<?php
+
+interface SayHello {
+    function sayHello(): string;
+}
+
+trait IndonesiaGender {
+    function inIndonesia(): string {
+        return match ($this){
+            Gender::Male => "Tuan",
+            Gender::Female => "Nyonya",
+        };
+    }
+}
+
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+class Customer
+{
+
+    public function __construct(public string $id,
+                                public string $name,
+                                public ?Gender $gender)
+    {
+    }
+
+}
+
+function sayHello(Customer $customer): string
+{
+    if($customer->gender == null){
+        return "Hello " . $customer->name;
+    }else{
+        return "Hello " . $customer->gender->value . "." . $customer->name;
+    }
+}
+
+var_dump(sayHello(new Customer("1", "Budi", Gender::from("Mr"))));
+var_dump(sayHello(new Customer("2", "Shinta", Gender::from("Mrs"))));
+var_dump(sayHello(new Customer("2", "Shinta", Gender::tryFrom("Salah"))));
+
+var_dump(Gender::cases());
+
+var_dump(Gender::Male->sayHello());
+var_dump(Gender::Female->sayHello());
+var_dump(Gender::Male->inIndonesia());
+var_dump(Gender::Female->inIndonesia());
+
+var_dump(Gender::fromIndonesia("Tuan"));
+var_dump(Gender::fromIndonesia("Nyonya"));
+// var_dump(Gender::fromIndonesia("Salah")); // error
+
+var_dump(Gender::Unknown);
+
+Menggunakan Enum
+Untuk menggunakan enum, kita bisa gunakan seperti mengakses static field
+Dan Enum memiliki static function cases() yang mengembalikan semua array enum nya
+
+Kode : Menggunakan Enum
+function sayHello(Customer $customer): string
+{
+    if($customer->gender == null){
+        return "Hello " . $customer->name;
+    }else{
+        return "Hello " . $customer->gender->value . "." . $customer->name;
+    }
+}
+
+Backed Enumerations
+Kadang, saat membuat enum, kita ingin data enum tersebut merepresentasikan data lainnya, misal data string atau integer misalnya
+PHP enum mendukung hal tersebut, caranya kita bisa menambahkan titik dua, lalu diikuti dengan tipe data nya
+Misal enum Gender : string, artinya enum Gender ini bisa merepresentasikan tipe data string
+
+Kode : Backed Enumerations
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+Konversi Backed Enumerations
+Salah satu keuntungan menggunakan backed enumerations adalah, kita bisa melakukan konversi tipe data enum nya ke tipe data backed nya
+Kita bisa gunakan static function from() atau tryFrom() untuk konversi ke enum
+Atau menggunakan field value untuk mendapatkan tipe data backed nya
+
+Kode : Konversi Backed Enumerations
+function sayHello(Customer $customer): string
+{
+    if($customer->gender == null){
+        return "Hello " . $customer->name;
+    }else{
+        return "Hello " . $customer->gender->value . "." . $customer->name;
+    }
+}
+
+var_dump(sayHello(new Customer("1", "Budi", Gender::from("Mr"))));
+var_dump(sayHello(new Customer("2", "Shinta", Gender::from("Mrs"))));
+
+Enumerations Method
+Enum di PHP mirip seperti class biasanya, dia bisa memiliki method atau function
+
+Kode : Enumerations Method
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+Enumerations Static Method
+Selain method, kita juga bisa menambahkan static method di enum
+
+Kode : Enumerations Static Method
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+Enumerations Inheritance
+Enun juga bisa melakukan pewarisan di PHP, namun terbatas hanya dengan interface dan trait, tidak bisa dengan class atau enum lainnya
+
+Kode : Enumerations Interface
+interface SayHello {
+    function sayHello(): string;
+}
+
+trait IndonesiaGender {
+    function inIndonesia(): string {
+        return match ($this){
+            Gender::Male => "Tuan",
+            Gender::Female => "Nyonya",
+        };
+    }
+}
+
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+Kode : Enumerations Trait
+trait IndonesiaGender {
+    function inIndonesia(): string {
+        return match ($this){
+            Gender::Male => "Tuan",
+            Gender::Female => "Nyonya",
+        };
+    }
+}
+
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+    static function fromIndonesia(string $value): Gender {
+        return match ($value){
+            "Tuan" => Gender::Male,
+            "Nyonya" => Gender::Female,
+            default => throw new Exception("Unsupported Indonesian Value")
+        };
+    }
+
+    function sayHello(): string{
+        return "Hello " . $this->value;
+    }
+}
+
+Enumerations Constant
+Enum juga bisa memiliki constant
+Tapi enum tidak bisa memiliki property/attribute
+
+Kode : Enumerations Constant
+enum Gender: string implements SayHello
+{
+    use IndonesiaGender;
+
+    case Male = "Mr";
+    case Female = "Mrs";
+
+    const Unknown = "Unknown";
+
+Readonly Properties
+Di PHP 8.1 sekarang terdapat kata kunci readonly, yang bisa digunakan di property
+Dengan menggunakan kata kunci readonly, sekarang kita bisa membuat sebuah property hanya bisa dibaca, tidak bisa diubah lagi
+Readonly properties hanya di tentukan datanya sekali, dan tidak bisa diubah lagi
+
+Kode : Readonly Properties
+<?php
+
+class Category {
+
+    public function __construct(public readonly string $id,
+                                public readonly string $name)
+    {
+    }
+}
+
+$category = new Category("1", "Gadget");
+var_dump($category->id);
+
+// $category->id = "2"; // error
+
+Promoted Property
+Readonly juga bisa dibuat pada fitur PHP 8 promoted property
+
+Kode : Promoted Readonly Property
+<?php
+
+class Category {
+
+    public function __construct(public readonly string $id,
+                                public readonly string $name)
+    {
+    }
+}
+
+$category = new Category("1", "Gadget");
+var_dump($category->id);
+
+// $category->id = "2"; // error
+
+First-class Callable Syntax
+Di PHP 8.1, sekarang kita bisa membuat sebuah reference ke function secara mudah hanya dengan menggunakan tanda … (titik tiga kali)
+
+Kode : Class Person
+<?php
+
+class Person {
+
+    public function __construct(public string $name)
+    {
+    }
+
+    function sayHello(string $name): string{
+        return "Hello $name, my name is $this->name";
+    }
+}
+
+$person = new Person("Eko");
+
+$reference = $person->sayHello(...);
+
+var_dump($reference("Budi"));
+
+// $reference2 = str_contains(...);
+
+Kode : First-Class Callable Syntax
+$person = new Person("Eko");
+
+$reference = $person->sayHello(...);
+
+var_dump($reference("Budi"));
+
+New in Initializers
+Sekarang kita bisa menggunakan default value di parameter dengan new initializer
+Sebelumnya, kita tidak bisa menggunakan kata kunci new ketika membuat default value
+
+Kode : New in Constructor Parameter
+<?php
+
+require_once __DIR__ . '/Category.php';
+require_once __DIR__ . '/Customer.php';
+
+class Product
+{
+
+
+    public function __construct(public string   $name = "No Name",
+                                public Category $category = new Category("0", "Default Category"))
+    {
+    }
+}
+
+function sayHelloNew(Customer $customer = new Customer("0", "No Name", Gender::Male)){
+
+}
+
+var_dump(new Product());
+var_dump(new Product("iPad"));
+var_dump(new Product("iPad", new Category("1", "Gadget")));
+
+sayHelloNew();
+
+Kode : New in Function Parameter
+function sayHelloNew(Customer $customer = new Customer("0", "No Name", Gender::Male)){
+
+}
+
+var_dump(new Product());
+var_dump(new Product("iPad"));
+var_dump(new Product("iPad", new Category("1", "Gadget")));
+
+sayHelloNew();
+
+Pure Intersection Types
+Di PHP 8, diperkenalkan dengan Union Types, dimana kita bisa membuat properties atau parameter yang bisa digunakan untuk beberapa tipe data
+Di PHP 8.1 terdapat Intersection Types, dimana kita bisa membuat properties atau parameter yang wajib sesuai dengan beberapa tipe data
+Ini cocok ketika kita ingin menentukan misal parameter harus merupakan tipe data turunan beberapa interface misalnya
+Jika Union Types menggunakan karakter |, sedangkan Intersection Types menggunakan karaketer &
+Sama seperti Union Types, untuk Intersection Types juga bisa digunakan untuk beberapa tipe data, tanpa ada batasan
+
+Kode : Contoh Interface
+<?php
+
+interface HasBrand
+{
+    function getBrand(): string;
+}
+
+interface HasName
+{
+    function getName(): string;
+}
+
+class Car implements HasBrand , HasName {
+    private string $brand;
+    private string $name;
+
+    public function __construct(string $brand, string $name)
+    {
+        $this->brand = $brand;
+        $this->name = $name;
+    }
+
+    public function getBrand(): string
+    {
+        return $this->brand;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+}
+
+function printBrandAndName(HasBrand & HasName $value)
+{
+    echo $value->getBrand() . "-" . $value->getName() . PHP_EOL;
+}
+
+printBrandAndName(new Car("Toyota", "Avanza"));
+printBrandAndName(new Car("Honda", "Mobilio"));
+
+Kode : Intersection Types
+function printBrandAndName(HasBrand & HasName $value)
+{
+    echo $value->getBrand() . "-" . $value->getName() . PHP_EOL;
+}
+
+Never Return Type
+Sebelumnya kita tahu ada kata kunci void untuk digunakan pada return value, untuk menandai bahwa function tersebut tidak mengembalikan value apapun
+Di PHP 8.1 terdapat return type baru, yaitu never
+Never merupakan penanda bahwa sebuah function tidak akan mengembalikan value dan function akan throw exception atau menghentikan eksekusi script dengan memanggil function die(), exit() atau trigger_error()
+Never ini cocok ketika kita ingin membuat function yang setelah itu kita ingin menghentikan eksekusi kode program php nya misal
+
+Kode : Never
+<?php
+
+function stop(): never
+{
+    echo "STOP" . PHP_EOL;
+    exit();
+}
+
+stop();
+
+echo "Ups" . PHP_EOL;
+
+Final Class Constants
+Sebelumnya saat membuat constant di Parent Class, kita bisa override di Child Class nya
+Di PHP 8.1 sekarang kita bisa menambahkan kata kunci final di constant nya, sehingga tidak bisa di override di class child nya
+
+Kode : Final Class Constant
+<?php
+
+class Foo {
+    final const XX = "Foo";
+}
+
+class Bar extends Foo {
+    // const XX = "Bar";
+}
+
+var_dump(Bar::XX);
+
+Fitur Baru Lainnya
+https://www.php.net/releases/8.1/en.php 
